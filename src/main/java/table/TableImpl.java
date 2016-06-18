@@ -1,6 +1,5 @@
 package table;
 
-import java.io.File;
 import java.util.*;
 
 /**
@@ -10,19 +9,19 @@ import java.util.*;
 public class TableImpl implements ITable {
     public static final int INITIAL_CAPACITY = 10000;
     //private final File tableFile;
-    private final Map<String, Record> records;
+    private final Map<Point, Record> records;
 
     public TableImpl() {
-        records = new HashMap<String, Record>(INITIAL_CAPACITY);
+        records = new HashMap<Point, Record>(INITIAL_CAPACITY);
     }
 
     public void set(String cell, long value) {
         Point point = Point.fromCell(cell);
-        setItem(cell, value);
+        setItem(point, value);
     }
 
     public long get(String cell) {
-        Record item = getItem(cell);
+        Record item = getItem(Point.fromCell(cell));
         if (item == null) {
             return 0L;
         }
@@ -37,8 +36,8 @@ public class TableImpl implements ITable {
         long maxRow = p1.getRow() > p2.getRow() ? p1.getRow() : p2.getRow();
         long minRow = p1.getRow() > p2.getRow() ? p2.getRow() : p1.getRow();
         long sum = 0;
-        for (Map.Entry<String, Record> entry : records.entrySet()) {
-            Point point = Point.fromCell(entry.getKey());
+        for (Map.Entry<Point, Record> entry : records.entrySet()) {
+            Point point = entry.getKey();
             if (point.getColumn() >= minCol && point.getColumn() <= maxCol
                     && point.getRow() >= minRow && point.getRow() <= maxRow) {
                 sum += entry.getValue().getData();
@@ -57,8 +56,8 @@ public class TableImpl implements ITable {
         long minRow = p1.getRow() > p2.getRow() ? p2.getRow() : p1.getRow();
         long mult = 1;
 
-        for (Map.Entry<String, Record> entry : records.entrySet()) {
-            Point point = Point.fromCell(entry.getKey());
+        for (Map.Entry<Point, Record> entry : records.entrySet()) {
+            Point point = entry.getKey();
             if (point.getColumn() >= minCol && point.getColumn() <= maxCol
                     && point.getRow() >= minRow && point.getRow() <= maxRow) {
                 mult *= entry.getValue().getData();
@@ -68,16 +67,16 @@ public class TableImpl implements ITable {
         return mult;
     }
 
-    private Record getItem(String point) {
+    private Record getItem(Point point) {
         return records.get(point);
     }
 
-    private void setItem(String point, long value) {
+    private void setItem(Point point, long value) {
         if (!records.containsKey(point) && records.size() >= INITIAL_CAPACITY) {
             // new key, find oldest value in table
-            Record oldestRecord = Collections.min(records.values());
+            Point key = Collections.min(records.keySet());
             // remove oldest value
-            records.remove(oldestRecord);
+            records.remove(key);
         }
         records.put(point, new Record(value));
     }
