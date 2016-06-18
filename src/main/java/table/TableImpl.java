@@ -31,15 +31,14 @@ public class TableImpl implements ITable {
     public long sum(String fromCell, String toCell) {
         Point p1 = Point.fromCell(fromCell);
         Point p2 = Point.fromCell(toCell);
-        int maxCol = p1.getColumn() > p2.getColumn() ? p1.getColumn() : p2.getColumn();
-        int minCol = p1.getColumn() > p2.getColumn() ? p2.getColumn() : p1.getColumn();
-        long maxRow = p1.getRow() > p2.getRow() ? p1.getRow() : p2.getRow();
-        long minRow = p1.getRow() > p2.getRow() ? p2.getRow() : p1.getRow();
+        int maxCol = getMaxColumn(p1, p2);
+        int minCol = getMinColumn(p1, p2);
+        long maxRow = getMaxRow(p1, p2);
+        long minRow = getMinRow(p1, p2);
         long sum = 0;
         for (Map.Entry<Point, Record> entry : records.entrySet()) {
             Point point = entry.getKey();
-            if (point.getColumn() >= minCol && point.getColumn() <= maxCol
-                    && point.getRow() >= minRow && point.getRow() <= maxRow) {
+            if (isInRange(maxCol, minCol, maxRow, minRow, point)) {
                 sum += entry.getValue().getData();
             }
         }
@@ -47,25 +46,56 @@ public class TableImpl implements ITable {
         return sum;
     }
 
+
     public long mult(String fromCell, String toCell) {
         Point p1 = Point.fromCell(fromCell);
         Point p2 = Point.fromCell(toCell);
-        int maxCol = p1.getColumn() > p2.getColumn() ? p1.getColumn() : p2.getColumn();
-        int minCol = p1.getColumn() > p2.getColumn() ? p2.getColumn() : p1.getColumn();
-        long maxRow = p1.getRow() > p2.getRow() ? p1.getRow() : p2.getRow();
-        long minRow = p1.getRow() > p2.getRow() ? p2.getRow() : p1.getRow();
+        int maxCol = getMaxColumn(p1, p2);
+        int minCol = getMinColumn(p1, p2);
+        long maxRow = getMaxRow(p1, p2);
+        long minRow = getMinRow(p1, p2);
         long mult = 1;
 
         for (Map.Entry<Point, Record> entry : records.entrySet()) {
             Point point = entry.getKey();
-            if (point.getColumn() >= minCol && point.getColumn() <= maxCol
-                    && point.getRow() >= minRow && point.getRow() <= maxRow) {
+            if (isInRange(maxCol, minCol, maxRow, minRow, point)) {
                 mult *= entry.getValue().getData();
             }
         }
 
         return mult;
     }
+
+    /**
+     * Check point in range
+     * @param maxCol
+     * @param minCol
+     * @param maxRow
+     * @param minRow
+     * @param point
+     * @return
+     */
+    private boolean isInRange(int maxCol, int minCol, long maxRow, long minRow, Point point) {
+        return point.getColumn() >= minCol && point.getColumn() <= maxCol
+                && point.getRow() >= minRow && point.getRow() <= maxRow;
+    }
+
+    private long getMinRow(Point p1, Point p2) {
+        return p1.getRow() > p2.getRow() ? p2.getRow() : p1.getRow();
+    }
+
+    private long getMaxRow(Point p1, Point p2) {
+        return p1.getRow() > p2.getRow() ? p1.getRow() : p2.getRow();
+    }
+
+    private int getMinColumn(Point p1, Point p2) {
+        return p1.getColumn() > p2.getColumn() ? p2.getColumn() : p1.getColumn();
+    }
+
+    private int getMaxColumn(Point p1, Point p2) {
+        return p1.getColumn() > p2.getColumn() ? p1.getColumn() : p2.getColumn();
+    }
+
 
     private Record getItem(Point point) {
         return records.get(point);
